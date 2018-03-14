@@ -9,6 +9,7 @@ ActorHomeImpl actorHome = ActorHomeImpl.newInstance();
 ```
 ### 添加Actor
 ```
+// p为参数，s为成交回调的结果，f为失败回调的结果
 actorHome.<Integer,Integer>put("add",(p, s, f)->{
             s.accept(p+1);
 });
