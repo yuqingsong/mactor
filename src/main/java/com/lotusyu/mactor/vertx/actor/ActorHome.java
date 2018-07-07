@@ -13,7 +13,11 @@ package com.lotusyu.mactor.vertx.actor;
  */
 public interface ActorHome {
 
-    <P, R> void put(String address, MessageActor<P, R> actor);
+    <P, R> MessageActor put(String address, MessageActor<P, R> actor);
+
+    default  <P, R> MessageActor put(MessageActor<P, R> actor){
+        return this.put(actor.getClass().getSimpleName(),actor);
+    }
 
     <P, R> MessageActor<P, R> get(String... names);
 
@@ -29,6 +33,13 @@ public interface ActorHome {
 
     <P, R> MessageActor<P, R> get(String name);
     <P, R> MessageActor<P, R> get(String name,int timeout);
+
+    default <P, R> MessageActor<P, R> get(Class clz){
+        return this.get(clz.getSimpleName());
+    }
+    default <P, R> MessageActor<P, R> get(Class clz,int timeout){
+        return this.get(clz.getSimpleName(),timeout);
+    }
 
     /**
      * 统一的错误处理的actor

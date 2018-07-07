@@ -3,10 +3,14 @@ package com.lotusyu.mactor.vertx.actor.impl;
 
 import com.lotusyu.mactor.vertx.actor.FailedMsg;
 import com.lotusyu.mactor.vertx.actor.MessageActor;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.TimerTask;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.ConcurrentHashSet;
 
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
@@ -42,6 +46,12 @@ public class MessageActorWithTimeout<P,R> implements MessageActor<P,R> {
 
     private MessageActor<P,R> actor;
 
+    static HashedWheelTimer hashedWheelTimer ;
+
+            static{
+                hashedWheelTimer = new HashedWheelTimer(10, TimeUnit.MILLISECONDS);
+            }
+
 
 
     public <T> MessageActorWithTimeout(Vertx vertx, int timeout, MessageActor<P,R> actor,Consumer failedActor) {
@@ -64,22 +74,34 @@ public class MessageActorWithTimeout<P,R> implements MessageActor<P,R> {
         } else {
             Long seq = seqCounter.incrementAndGet();
             requestSeqSet.add(seq);
-            Long timerId = vertx.setTimer(timeout, r -> {
-                    if (removeRequestSeq(seq)) {
-                        // failed on timeout
-                        FailedMsg f = new FailedMsg(-1, "timeout", null);
-                        onFailed.accept(f);
-                    }
-                });
+//            Long timerId = vertx.setTimer(timeout, r -> {
+//                    if (removeRequestSeq(seq)) {
+//                        // failed on timeout
+//                        FailedMsg f = new FailedMsg(-1, "timeout", null);
+//                        onFailed.accept(f);
+//                    }
+//                });
+
+            Timeout timeout = hashedWheelTimer.newTimeout(timeout1 -> {
+                if (removeRequestSeq(seq)) {
+                    // failed on timeout
+                    FailedMsg f = new FailedMsg(-1, "timeout", null);
+                    onFailed.accept(f);
+                }
+            }, this.timeout, TimeUnit.MILLISECONDS);
+
+
             Consumer<R> finalOnSuccessded = r->{
                 if(removeRequestSeq(seq)){
-                    vertx.cancelTimer(timerId);
+//                    vertx.cancelTimer(timerId);
+                    timeout.cancel();
                     onSuccessded.accept(r);
                 }
             };
             Consumer finalOnFailed = error->{
                 if(removeRequestSeq(seq)){
-                    vertx.cancelTimer(timerId);
+//                    vertx.cancelTimer(timerId);
+                    timeout.cancel();
                     onFailed.accept(error);
                 }
             };

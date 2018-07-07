@@ -9,6 +9,7 @@ import io.vertx.core.Vertx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -81,7 +82,7 @@ public class ActorHomeImpl implements ActorHome {
             };
 
         } else {
-            this.vertx = Vertx.vertx();
+//            this.vertx = Vertx.vertx();
             //returnMe = Executors.newSingleThreadExecutor();
             returnMe = new DisruptorExecutor();
         }
@@ -107,13 +108,20 @@ public class ActorHomeImpl implements ActorHome {
 
 
     @Override
-    public <P, R> void put(String address, MessageActor<P, R> actor) {
-        MessageActor value = toInternalActor(actor);
+    public <P, R> MessageActor<P,R> put(String address, MessageActor<P, R> actor) {
+        MessageActor value = toInternalActor(address,actor);
         actorMap.put(address, value);
+        return value;
     }
 
-    public <P, R> MessageActor toInternalActor(MessageActor<P, R> actor) {
-        return new InternalActor(this.executor,this.mainThread,actor,DEF_ERROR_HANDLER);
+//    synchronized public <P, R> String put(MessageActor<P,R> actor){
+//        String address = "__anonymous__" + anonymousSeq++;
+//        actorMap.put(address,actor);
+//        return address;
+//    }
+
+    public <P, R> MessageActor toInternalActor(String address,MessageActor<P, R> actor) {
+        return new InternalActor(address,this.executor,this.mainThread,actor,DEF_ERROR_HANDLER);
     }
 
     public <P, R> MessageActor<P, R> get(int timeout,String... names) {
@@ -130,13 +138,22 @@ public class ActorHomeImpl implements ActorHome {
         for (int i = 0; i < names.length; i++) {
             messageActors[i] = this.getInternal(names[i]);
         }
-        return (message, onSuccessded, onFailed) -> {
-            AtomicInteger index = new AtomicInteger();
-            onFailed = onFailed == null ? DEF_ERROR_HANDLER : onFailed;
-            Consumer finalOnFailed = onFailed;
-            Consumer finalOnSuccessded = getConsumer(messageActors, index, onSuccessded, finalOnFailed);
-            MessageActor messageActor = messageActors[index.get()];
-            messageActor.send(message, finalOnSuccessded, finalOnFailed);
+        return new MessageActor<P, R>() {
+            private String name=Arrays.toString(names);
+            private String currentAddress;
+            @Override
+            public void send(P message, Consumer<R> onSuccessded, Consumer onFailed) {
+                AtomicInteger index = new AtomicInteger();
+                onFailed = onFailed == null ? DEF_ERROR_HANDLER : onFailed;
+                Consumer finalOnFailed = onFailed;
+                Consumer finalOnSuccessded = getConsumer(messageActors, index, onSuccessded, finalOnFailed);
+                MessageActor messageActor = messageActors[index.get()];
+                if(messageActor instanceof InternalActor){
+                    this.currentAddress = ((InternalActor) messageActor).getAddress();
+                    LOG.debug("send msg to {}",currentAddress);
+                }
+                messageActor.send(message, finalOnSuccessded, finalOnFailed);
+            }
         };
     }
 
@@ -170,7 +187,7 @@ public class ActorHomeImpl implements ActorHome {
     }
 
     public <P, R> MessageActor<P, R> withTimeout(MessageActor messageActor, int timeout) {
-        return toInternalActor(new MessageActorWithTimeout<P, R>(this.vertx, timeout,messageActor,this.DEF_ERROR_HANDLER));
+        return toInternalActor(null,new MessageActorWithTimeout<P, R>(this.vertx, timeout,messageActor,this.DEF_ERROR_HANDLER));
     }
 
     public void setError(Consumer actor) {

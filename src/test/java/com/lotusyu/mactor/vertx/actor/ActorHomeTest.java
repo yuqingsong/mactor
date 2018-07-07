@@ -32,7 +32,7 @@ public class ActorHomeTest {
 
     private ActorHome actors;
     private Vertx vertx;
-    private int timeout = 1 * 1000;;
+    private int timeout = 1 * 1000;
     private static AtomicInteger beforeCounter = new AtomicInteger();
 
     @Before
@@ -272,10 +272,10 @@ public class ActorHomeTest {
             r.accept(p + 1);
         });
 
-        MessageActor<Object, Object> actor = this.actors.get("a");
+        MessageActor<Object, Object> actor = this.actors.get("a",timeout);
 
 //        this.actors.put("main", (pp, rr, ee) -> {
-            int times = 1000*1000 * 1000;
+            int times = 10*1000 * 1000;
             AtomicInteger counter = new AtomicInteger();
             Utilx.cost(t -> {
                 actor.send(1, r -> {
@@ -374,4 +374,22 @@ public class ActorHomeTest {
     }
 
 
+}
+class OverloadActor<T extends Object> implements MessageActor<T,T>{
+
+
+    public void send(Integer msg, Consumer<String> onSuccessded, Consumer onFailed) {
+        System.out.println("this is Integer");
+    }
+
+    public static void main(String[] args) {
+        MessageActor actor = new OverloadActor();
+        actor.send(1,s->{},f->{});
+    }
+
+
+    @Override
+    public void send(T msg, Consumer<T> onSuccessded, Consumer onFailed) {
+        System.out.println("this is T");
+    }
 }

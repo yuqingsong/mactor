@@ -14,7 +14,15 @@ class InternalActor<P,R> implements MessageActor<P,R> {
 
     private MessageActor<P,R> actor;
 
+
+
+    private String address;
+
     public InternalActor(Executor executor, Thread mainThread, MessageActor<P, R> actor,Consumer defaultOnFailed) {
+        this(null,executor,mainThread,actor,defaultOnFailed);
+    }
+    public InternalActor(String address,Executor executor, Thread mainThread, MessageActor<P, R> actor,Consumer defaultOnFailed) {
+        this.address = address;
         this.executor = executor;
         this.mainThread = mainThread;
         this.actor = actor;
@@ -74,5 +82,9 @@ class InternalActor<P,R> implements MessageActor<P,R> {
         return p -> {
             runOnExecutor(p,onFailed);
         };
+    }
+
+    public String getAddress() {
+        return address;
     }
 }
