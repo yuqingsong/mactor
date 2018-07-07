@@ -41,8 +41,17 @@ public class ActorHomeImpl implements ActorHome {
 
     public static ActorHomeImpl newInstance() {
         ActorHomeImpl actorSystemImpl = new ActorHomeImpl();
-        actorSystemImpl.initErrorActor();
+        actorSystemImpl.init();
         return actorSystemImpl;
+    }
+
+    protected  void init() {
+        this.initExecutor();
+        this.initErrorActor();
+    }
+
+    private  void initExecutor() {
+        this.setExecutor(this.newExecutor());
     }
 
     private  void initErrorActor() {
@@ -56,7 +65,7 @@ public class ActorHomeImpl implements ActorHome {
     }
 
     private ActorHomeImpl() {
-        setExecutor(newExecutor());
+
     }
 
 

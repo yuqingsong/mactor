@@ -37,6 +37,7 @@ class InternalActor<P,R> implements MessageActor<P,R> {
 
     @Override
     public void send(P msg, Consumer<R> onSuccessded, Consumer onFailed) {
+//        System.out.println("address:"+address+"\tmsg:"+msg);
         Consumer r = wrapByExecutor(onSuccessded);
         Consumer e = wrapByExecutor(onFailed);
         if(isActorsThread()){
