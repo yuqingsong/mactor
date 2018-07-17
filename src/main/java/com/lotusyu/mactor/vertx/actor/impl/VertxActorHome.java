@@ -20,7 +20,8 @@ import java.util.function.Consumer;
  * @author yuqingsong
  * @since <pre>18-1-2</pre>
  */
-public class VertxActorHome extends ActorHomeImpl{
+@Deprecated
+class VertxActorHome extends ActorHomeImpl{
 
     public VertxActorHome(){
         super.init();

@@ -41,7 +41,7 @@ public class ActorHomeTest {
     }
 
     private ActorHome newActorHome() {
-        ActorHome actorHome = ActorHomes.newDisruptorActorHome();
+        ActorHome actorHome = ActorHomes.newFixedThreadPoolActorHome();
         actorHome.setTimeout(timeout);
         return actorHome;
     }
