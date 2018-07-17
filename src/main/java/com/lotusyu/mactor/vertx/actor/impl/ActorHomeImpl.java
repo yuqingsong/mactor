@@ -64,20 +64,20 @@ public class ActorHomeImpl implements ActorHome {
         });
     }
 
-    private ActorHomeImpl() {
+    ActorHomeImpl() {
 
     }
 
 
 
-    private void setExecutor(Executor executor) {
+    public synchronized void setExecutor(Executor executor) {
         this.executor = executor;
         executor.execute(()->{
             ActorHomeImpl.this.mainThread = Thread.currentThread();
         });
     }
 
-    private Executor newExecutor() {
+    protected Executor newExecutor() {
         Executor returnMe = null;
         Context context = Vertx.currentContext();
         if (context != null) {

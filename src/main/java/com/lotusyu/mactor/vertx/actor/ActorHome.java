@@ -62,4 +62,6 @@ public interface ActorHome {
 //    <P, R, E> void send(String address, P msg, Consumer<R> onSuccessded, Consumer<E> onFailed);
 
     void sendError(Object msg);
+
+    void setTimeout(int timeout);
 }

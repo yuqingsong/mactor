@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.sangame</groupId>
+    <groupId>com.lotusyu</groupId>
     <artifactId>${product.name}</artifactId>
     <version>${product.version}-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -10,9 +10,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <build.version>0</build.version>
         <product.version>1.0.1</product.version>
-        <product.name>vertx-commons</product.name>
+        <product.name>mactor</product.name>
         <yuicompressor.skip>true</yuicompressor.skip>
-        <vertx.version>3.5.1</vertx.version>
+        <vertx.version>3.5.2</vertx.version>
 
     </properties>
 

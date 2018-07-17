@@ -1,16 +1,15 @@
 package com.lotusyu.mactor.vertx.actor;
 
-import com.lotusyu.mactor.vertx.actor.impl.ActorHomeImpl;
 import com.lotusyu.mactor.vertx.actor.impl.MessageActorWithTimeout;
 import com.lotusyu.mactor.vertx.lang.Utilx;
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.Before;
 import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
@@ -42,7 +41,7 @@ public class ActorHomeTest {
     }
 
     private ActorHome newActorHome() {
-        ActorHomeImpl actorHome = ActorHomeImpl.newInstance();
+        ActorHome actorHome = ActorHomes.newDisruptorActorHome();
         actorHome.setTimeout(timeout);
         return actorHome;
     }
@@ -339,8 +338,6 @@ public class ActorHomeTest {
                 ctx.fail();
             }
         });
-
-
     }
 
     @Test
@@ -369,27 +366,6 @@ public class ActorHomeTest {
         this.vertx.setTimer(200,h->{
             ctx.assertEquals(0,timeoutActor.executingRequestSize());
         });
-
-
-    }
-
-
-}
-class OverloadActor<T extends Object> implements MessageActor<T,T>{
-
-
-    public void send(Integer msg, Consumer<String> onSuccessded, Consumer onFailed) {
-        System.out.println("this is Integer");
-    }
-
-    public static void main(String[] args) {
-        MessageActor actor = new OverloadActor();
-        actor.send(1,s->{},f->{});
-    }
-
-
-    @Override
-    public void send(T msg, Consumer<T> onSuccessded, Consumer onFailed) {
-        System.out.println("this is T");
     }
 }
+
